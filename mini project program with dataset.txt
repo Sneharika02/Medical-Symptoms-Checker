@@ -1,0 +1,94 @@
+package project1;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.File;
+import java.io.FileNotFoundException;
+
+public class MedicalSymptomsChecker {
+
+    private static final Map<String, String> symptomAdviceMap = new HashMap<>();
+
+    static {
+        loadSymptomsData("symptoms_data.txt");
+    }
+
+    private static void loadSymptomsData(String fileName) {
+        try (Scanner fileScanner = new Scanner(new File(fileName))) {
+            while (fileScanner.hasNextLine()) {
+                String[] data = fileScanner.nextLine().split(",", 2);
+                if (data.length == 2) {
+                    symptomAdviceMap.put(data[0].trim().toLowerCase(), data[1].trim());
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("Error loading symptoms data file: " + e.getMessage());
+        }
+    }
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            System.out.println("Welcome to the Medical Symptoms Checker.");
+            System.out.println("Please note that this is a basic tool and cannot replace professional medical advice.");
+
+            while (true) {
+                System.out.println("Enter your primary symptom (e.g., headache, cough, fever), or type 'exit' to quit:");
+                String primarySymptom = scanner.nextLine().toLowerCase();
+
+                if ("exit".equals(primarySymptom)) {
+                    break;
+                }
+
+                if (!symptomAdviceMap.containsKey(primarySymptom)) {
+                    System.out.println("Symptom not recognized. Please enter a known symptom.");
+                    continue;
+                }
+
+                System.out.println("How long have you been experiencing this symptom? (e.g., hours, days):");
+                String duration = scanner.nextLine().toLowerCase();
+
+                System.out.println("On a scale of 1 to 10, how would you rate the severity of your symptom?");
+                int severity = Integer.parseInt(scanner.nextLine());
+
+                String advice = symptomAdviceMap.get(primarySymptom);
+                System.out.println(advice);
+
+                // Additional logic based on symptom severity and duration
+                if (severity > 7) {
+                    System.out.println("High severity symptoms should be addressed by a medical professional promptly.");
+                } else if (duration.contains("days") && severity > 5) {
+                    System.out.println("Symptoms persisting for several days with moderate to high severity should be evaluated by a doctor.");
+                } else {
+                    System.out.println("If symptoms persist or worsen, consider consulting a healthcare provider.");
+                }
+
+                System.out.println("Would you like to check another symptom? (yes/no)");
+                if (!"yes".equalsIgnoreCase(scanner.nextLine())) {
+                    break;
+                }
+            }
+
+            System.out.println("Thank you for using the Medical Symptoms Checker. Remember to always consult a healthcare professional for medical advice.");
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please ensure you enter a number for severity.");
+        } finally {
+            scanner.close();
+        }
+        {
+        	String line;
+            try (BufferedReader reader = new BufferedReader(new FileReader("data.txt"))) {
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
+                }
+            } 
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            }
+        }
+    }
